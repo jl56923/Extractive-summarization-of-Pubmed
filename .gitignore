@@ -1,3 +1,7 @@
+# Ignore anything with the word ignore in it, also ignore articles
+articles/
+*ignore*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
