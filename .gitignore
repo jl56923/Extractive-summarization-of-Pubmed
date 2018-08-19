@@ -1,5 +1,6 @@
-# Ignore anything with the word ignore in it, also ignore articles
+# Ignore anything with the word ignore in it, also ignore articles and data folders
 articles/
+data/
 *ignore*
 
 # Byte-compiled / optimized / DLL files
