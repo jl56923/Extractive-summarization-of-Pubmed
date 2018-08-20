@@ -1,0 +1,7 @@
+paper_dict = {
+        "pmcid": pmcid,
+        "title": title,
+        "abstract_text": abstract_text,
+        "article_text": article_text,
+        "citation_tuples": citation_tuples
+    }
