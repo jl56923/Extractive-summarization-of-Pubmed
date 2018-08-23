@@ -1,0 +1,71 @@
+<html>
+
+<body>
+This is our Titanic predictor
+
+Gender:
+  <select id="summarizer_type">
+    <option value="full_abstracts">Get full abstracts</option>
+    <option value="lsa_summarizer">LSA summarizer</option>
+  </select>
+  <br />
+
+  <input type="text" name="pubmed_query" id="pubmed_query" />
+
+  <div>
+    <button id="submit">Submit</button>
+  </div>
+  Our prediction is:
+  <table>
+    <tr><td>You will</td><td id="hard_predict"></td></tr>
+    <tr><td>Probability</td><td id="soft_predict"></td></tr>
+  </table>
+
+  <div id="pmid_list">
+  </div>
+
+</body>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script>
+
+  $('#submit').click( () => { get_pubmed_query_summarizer_type(); } );
+
+  function get_pubmed_query_summarizer_type(){
+    let pubmed_query_summarizer_type = {
+      'pubmed_query': $('#pubmed_query').val(),
+      'summarizer_type': $('#summarizer_type').val()
+    }
+
+    let pubmed_query = $('#pubmed_query').val();
+
+    console.log(pubmed_query_summarizer_type);
+    // console.log(pubmed_query);
+
+    $.ajax({
+      type: "POST",
+      contentType: "application/json; charset=utf-8",
+      url: "/summarize",  // Replace with URL of POST handler
+      dataType: "json",
+      async: true,
+      data: JSON.stringify(pubmed_query_summarizer_type),
+      success: (result) => {
+        // $('#hard_predict').html(result['prediction']);
+        // $('#soft_predict').html(result['prob_survived']);
+
+        for (const [key, value] of Object.entries(result)) {
+          console.log(key);
+          const div2 = "<p>abc</p>";
+          const new_div = $("<div></div>").text(key);
+          $('#pmid_list').append(new_div);
+        }
+      },
+      error: (result) => {
+        alert('Unable to submit query.');
+      }
+    })
+
+  }
+
+  </script>
+
+</html>
