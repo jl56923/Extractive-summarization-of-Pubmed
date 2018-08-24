@@ -1,0 +1,26 @@
+.button {
+  margin: 10px;
+}
+
+.sidenav {
+  background-color: aliceblue;
+  height: 100%;
+  left: 0;
+  overflow-x: hidden;
+  padding-top: 20px;
+  padding-left: 20px;
+  position: fixed;
+  top: 0;
+  width: 400px;
+  z-index: 1;
+}
+
+#pubmed_query {
+  display: block;
+  margin-bottom: 10px;
+}
+
+#summarizer_type {
+  display: block;
+  margin-bottom: 10px;
+}

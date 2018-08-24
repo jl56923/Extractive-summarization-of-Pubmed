@@ -1,71 +1,168 @@
-<html>
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
 
 <body>
-This is our Titanic predictor
 
-Gender:
-  <select id="summarizer_type">
-    <option value="full_abstracts">Get full abstracts</option>
-    <option value="lsa_summarizer">LSA summarizer</option>
-  </select>
-  <br />
+  <div class="container-fluid">
+    <div class="col-sm-4">
+      <div class="sidenav">
 
-  <input type="text" name="pubmed_query" id="pubmed_query" />
+        <h1 class="test">Extractive summarization</h1>
 
-  <div>
-    <button id="submit">Submit</button>
+        <hr />
+        <label for="pubmed_query">Query Pubmed</label>
+        <input type="text" name="pubmed_query" id="pubmed_query" placeholder="Enter query"/>
+
+        <div>
+          <button id="submit">Get full abstracts</button>
+        </div>
+
+        <hr />
+
+        <label for="summarizer_type">Choose summarizer</label>
+        <select id="summarizer_type">
+          <option value="lsa">LSA summarizer</option>
+          <option value="lexrank">Lex Rank summarizer</option>
+          <option value="textrank">Text Rank summarizer</option>
+          <option value="luhn">Luhn summarizer</option>
+        </select>
+
+        <div>
+          <button id="summarize">Summarize</button>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col-sm-8">
+      <div id="abstract_list">
+      </div>
+    </div>
+
   </div>
-  Our prediction is:
-  <table>
-    <tr><td>You will</td><td id="hard_predict"></td></tr>
-    <tr><td>Probability</td><td id="soft_predict"></td></tr>
-  </table>
-
-  <div id="pmid_list">
-  </div>
-
 </body>
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-  <script>
 
-  $('#submit').click( () => { get_pubmed_query_summarizer_type(); } );
 
-  function get_pubmed_query_summarizer_type(){
-    let pubmed_query_summarizer_type = {
-      'pubmed_query': $('#pubmed_query').val(),
-      'summarizer_type': $('#summarizer_type').val()
-    }
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
 
-    let pubmed_query = $('#pubmed_query').val();
+$('#submit').click( () => { get_pubmed_query(); } );
 
-    console.log(pubmed_query_summarizer_type);
-    // console.log(pubmed_query);
-
-    $.ajax({
-      type: "POST",
-      contentType: "application/json; charset=utf-8",
-      url: "/summarize",  // Replace with URL of POST handler
-      dataType: "json",
-      async: true,
-      data: JSON.stringify(pubmed_query_summarizer_type),
-      success: (result) => {
-        // $('#hard_predict').html(result['prediction']);
-        // $('#soft_predict').html(result['prob_survived']);
-
-        for (const [key, value] of Object.entries(result)) {
-          console.log(key);
-          const div2 = "<p>abc</p>";
-          const new_div = $("<div></div>").text(key);
-          $('#pmid_list').append(new_div);
-        }
-      },
-      error: (result) => {
-        alert('Unable to submit query.');
-      }
-    })
-
+function get_pubmed_query(){
+  let features = {
+    'pubmed_query': $('#pubmed_query').val()
   }
 
-  </script>
+  // Let's empty the abstract_list in preparation of the next query.
+  $('#abstract_list').empty();
+
+  $.ajax({
+    type: "POST",
+    contentType: "application/json; charset=utf-8",
+    url: "/get_abstracts",  // Replace with URL of POST handler
+    dataType: "json",
+    async: true,
+    data: JSON.stringify(features),
+    success: (result) => {
+
+      let i = 0;
+
+      for (const [key, value] of Object.entries(result)) {
+
+        const title_div = $("<h3></h3>").text(value['title']);
+        $('#abstract_list').append(title_div);
+
+        const abstract_div = $("<div class='abstract'></div>").text(value['abstract_text']);
+        $('#abstract_list').append(abstract_div);
+        abstract_div.attr('id', 'abstract'+i);
+        i++;
+
+        $('#abstract_list').append("<hr />")
+      }
+    },
+    error: (result) => {
+      alert('Unable to submit query.');
+    }
+  })
+
+}
+
+$('#summarize').click( () => { get_summaries(); } );
+
+function get_summaries() {
+
+  let abstractArray = [];
+
+  $('.abstract').each(function(){
+    abstractArray.push($(this).text());
+  });
+
+  let features = {
+    'summarizer_type': $('#summarizer_type').val(),
+    'list_of_abstracts': abstractArray
+  }
+
+  console.log(features)
+
+  $('.summary_title').remove();
+  $('.summary').remove();
+
+  $.ajax({
+    type: "POST",
+    contentType: "application/json; charset=utf-8",
+    url: "/get_summaries",  // Replace with URL of POST handler
+    dataType: "json",
+    async: true,
+    data: JSON.stringify(features),
+    success: (result) => {
+      console.log("hello! the get_summaries function worked!");
+      console.log(result);
+
+      $('.summary_title').remove();
+      $('.summary').remove();
+
+      for (var i = 0; i < result.length; i++) {
+        const summary_div = $("<div class='summary' style='color:blue;'></div>").text(result[i]);
+        // $('#abstract'+i).after(summary_div);
+        $(summary_div).insertAfter('#abstract'+i);
+
+        const summarizer_div = $("<h4 class='summary_title' style='color:blue;'></h4>").text($('#summarizer_type option:selected').text());
+        // $('#abstract'+i).after(summarizer_div);
+        $(summarizer_div).insertAfter('#abstract'+i);
+
+
+        // console.log(result[i])
+      }
+
+      // for (const [key, value] of Object.entries(result)) {
+      //   // console.log(key);
+      //   // console.log(value);
+      //   //
+      //   // const title_div = $("<h3></h3>").text(value['title']);
+      //   // $('#abstract_list').append(title_div);
+      //   //
+      //   // const abstract_div = $("<div></div>").text(value['abstract_text']);
+      //   // $('#abstract_list').append(abstract_div);
+      //   //
+      //   // $('#abstract_list').append("<hr />")
+      // }
+    },
+    error: (result) => {
+      alert('Unable to submit query.');
+    }
+  })
+}
+
+</script>
 
 </html>
