@@ -5,11 +5,6 @@ The overall goal of this project was to write a program that could take a query 
 
 Therefore, I wanted to see if I could get code to do the summarization automatically. Specifically, I planned to pull papers from Pubmed, which is the main online archive of biomedical literature and which has a subset of papers which are open access and free for anybody to read.
 
-What are the current solutions? There are resources that summarize the latest and most relevant medical information, and the most popular one is a website called uptodate. But this requires thousands of hours from hundreds of experts who write these articles, which is very expensive and time-consuming to produce.
-
-So, can we get computers to do the summarization for us? For this project, I wanted to see if I could summarize information from Pubmed, which is the main archive of biomedical literature and which has a subset of papers which are open access and free for anybody to read.
-
-
 ## Project design
 For the design of my project, I used the API tools provided by Pubmed in order to send a query for any particular topic, and then to fetch the text of the most relevant open access review papers about that topic. Ideally, I wanted the code to also be able to cluster the review papers by topics, and to summarize the most relevant information from the papers about each topic. I planned on using different summarization algorithms to see which one would work best.
 
